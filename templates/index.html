@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
+{{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
 {% endblock %}
@@ -20,6 +20,16 @@
             <input type="text" placeholder="Search Bar" class="search-bar" name="search_query">
             <button type="submit" class="search-button">Search</button>
         </form>
+    </div>
+</div>
+<div class="popular-campaigns">
+    <div class="pop-title">
+        Popular Campaigns
+    </div>
+    <div>
+        {% for campaign in top_campaigns %}
+            
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

@@ -75,7 +75,8 @@ class Donation(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    top_campaigns = Campaign.query.order_by(Campaign.current_amount.desc()).limit(2).all()
+    return render_template('index.html', top_campaigns=top_campaigns)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -86,8 +87,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and user.check_password(password):
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('index.html'))
         else:
             flash('Invalid credentials. Please try again.', 'danger')
 
