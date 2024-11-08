@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///RaiseUp.db'
+app.config['SECRET_KEY'] = 'temp'
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -87,7 +88,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and user.check_password(password):
-            return redirect(url_for('index.html'))
+            return redirect(url_for('index'))
         else:
             flash('Invalid credentials. Please try again.', 'danger')
 

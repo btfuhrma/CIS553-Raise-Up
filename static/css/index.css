@@ -27,6 +27,7 @@
 }
 .popular-campaigns{
     width: 99%;
+    height: 10%;
     margin-left: auto;
     margin-right: auto;
     background-color: #e4e5e6;
@@ -37,4 +38,7 @@
     padding-left: 4%;
     font-weight: bold;
     font-size: 18px;
+}
+.missing-campaigns{
+    text-align: center;
 }

@@ -1,9 +1,32 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 {% endblock %}
 
 {% block body %}
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="login-title">
+            <h1>Login</h1>
+        </div>
+        <form action="{{ url_for('login') }}" method="POST" class="login-form" enctype="multipart/form-data">
+            <div class="user-create-input">
+                <input name="email" id="email" type="text" class="email-input" placeholder="Email">
+            </div>      
+            <div class="user-create-input">
+                <input name="password" id="password" type="password" class="password-input" placeholder="Password"> 
+            </div>
+            <div class="user-create-input">
+                <p style="color: black;">Don't have an account?</p>
+                <a href="{{ url_for('signup') }}" class="create-account">Create Account</a>
+            </div>
+            <div class="submit-button" class="user-create-input">
+                <button class="create-item-button" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 {% endblock %}

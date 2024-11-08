@@ -1,9 +1,38 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}
 
 {% block body %}
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="login-title">
+            <h1>Login</h1>
+        </div>
+        <form action="{{ url_for('signup') }}" method="POST" class="login-form" enctype="multipart/form-data">
+            <div class="user-create-input">
+                <input name="email" id="email" type="text" class="email-input" placeholder="Email">
+            </div>
+            <div class="user-create-input">
+                <input name="name" id="name" type="text" class="name-input" placeholder="name">
+            </div>         
+            <div class="user-create-input">
+                <input name="password" id="password" type="password" class="password-input" placeholder="Password"> 
+            </div>
+            <div class="user-create-input">
+                <input type="password" id="Password2" class="password-input" placeholder="Repeat Password"> 
+            </div>
+            <div class="user-create-input">
+                <p id="error-message" style="color: red;" hidden="true">Passwords don't match!</p>
+            </div>
+            <div class="submit-button" class="user-create-input">
+                <button class="create-item-button" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 {% endblock %}
