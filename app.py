@@ -126,5 +126,9 @@ def searchCampaigns():
 
     return render_template('search_results.html', results=results)
 
+@app.route('/createCampaign', methods=['GET', 'POST'])
+def createCampaign():
+    pass
+
 if __name__ == "__main__":
     app.run(debug=True)

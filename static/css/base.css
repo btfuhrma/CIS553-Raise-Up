@@ -27,3 +27,20 @@
     color: white;
     font-size: 2em;
 }
+.footer {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    bottom: 0;
+    width: 98%;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 10px;
+}
+.about{
+    margin-left: 1%;
+}
+.service{
+    margin-right: 1%;
+}
