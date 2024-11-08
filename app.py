@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///RaiseUp.db'
@@ -12,6 +13,16 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     date_created = db.Column(db.DateTime, default=datetime.now)
+    password_hash = db.Column(db.String(128))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f"<User {self.user_id} - {self.email}>"
 
     def __repr__(self):
         return f"<User {self.user_id} - {self.email}>"
@@ -65,6 +76,54 @@ class Donation(db.Model):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.check_password(password):
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid credentials. Please try again.', 'danger')
+
+    return render_template('login.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+
+        if User.query.filter_by(email=email).first():
+            flash('Email already exists. Please log in.', 'danger')
+            return redirect(url_for('login'))
+
+        new_user = User(name=name, email=email)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created successfully! Please log in.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('signup.html')
+
+@app.route('/search', methods=['GET', 'POST'])
+def searchCampaigns():
+    query = request.form.get('search_query')
+    results = []
+
+    if query:
+        results = Campaign.query.filter(Campaign.title.ilike(f'%{query}%')).all()
+
+    return render_template('search_results.html', results=results)
 
 if __name__ == "__main__":
     app.run(debug=True)

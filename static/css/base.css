@@ -1,0 +1,29 @@
+.body{
+    background-color: #202b37;
+}
+.title-bar {
+    height: 20%;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.raiseup-img {
+    flex-shrink: 0;
+}
+
+.raiseup-img img {
+    height: auto;
+    max-width: 100px;
+}
+
+.title {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.title h1 {
+    color: white;
+    font-size: 2em;
+}

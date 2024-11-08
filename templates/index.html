@@ -1,9 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css')}}">
-    </head>
-</html>
+{% extends 'base.html' %}
+
+{% block head %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+{% endblock %}
+
+{% block body %}
+<div class="login-search">
+    <div class="login-button-wrapper">
+        <a href="{{ url_for('login') }}">
+            <button type="button" class="login-button">
+                Login
+            </button>
+        </a>
+    </div>
+    <div class="search-wrapper">
+        <form action="{{ url_for('searchCampaigns')}}" method="POST">
+            <input type="text" placeholder="Search Bar" class="search-bar" name="search_query">
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+.login-search{
+    height: 20%;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+.login-button {
+    margin-left: 10%;
+    padding: 15px 50px;
+    font-size: 18px;
+    border-radius: 10px;
+    background-color: #e4e5e6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    color: black;
+    font-weight: bold;
+}
+.search-bar{
+    text-align: center;
+    padding: 15px 100px;
+    background-color: #e4e5e6;
+    border-radius: 10px;
+    font-size: 18px;
+    flex-grow: 1;
+}
