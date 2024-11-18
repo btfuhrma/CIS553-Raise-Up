@@ -1,14 +1,26 @@
+import flask
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import firebase_admin
+from firebase_admin import credentials, db
+
+# Path to the downloaded service account key file
+cred = firebase_admin.credentials.Certificate("path/to/serviceAccountKey.json")
+
+# Initialize Firebase with the service account and database URL
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://your-database-name.firebaseio.com'
+})
 
 app = Flask(__name__)
 CORS(app)
 
 if not os.path.exists("instance"):
+
     os.makedirs("instance")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///RaiseUp.db"
