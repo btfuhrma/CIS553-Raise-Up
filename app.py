@@ -1,9 +1,25 @@
+import flask
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+
+# import firebase_admin
+# from firebase_admin import credentials, db
+from dotenv import load_dotenv
+import stripe
+
+load_dotenv()
+
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+# cred = firebase_admin.credentials.Certificate("path/to/serviceAccountKey.json")
+
+# firebase_admin.initialize_app(
+#     cred, {"databaseURL": "https://your-database-name.firebaseio.com"}
+# )
 
 app = Flask(__name__)
 CORS(app)
@@ -82,7 +98,7 @@ class Donation(db.Model):
     comment_id = db.Column(
         db.Integer, db.ForeignKey("comment.comment_id"), nullable=True
     )
-    amount = db.Column(db.Float, nullable=False)  # Added amount field
+    amount = db.Column(db.Float, nullable=False)
     anonymous = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.DateTime, default=datetime.now)
 
@@ -176,7 +192,44 @@ def search_campaigns():
     campaigns = Campaign.query.filter(Campaign.title.ilike(f"%{query}%")).all()
     return jsonify([campaign.serialize() for campaign in campaigns])
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+@app.route("/api/payment", methods=["POST"])
+def create_payment():
+    try:
+        data = request.get_json()
+
+        amount = data.get("amount")
+        if not amount or not amount.isdigit():
+            raise ValueError("Invalid amount. Please provide a valid number.")
+
+        amount_in_cents = int(float(amount) * 100)
+
+        currency = data.get("currency", "usd")
+        description = data.get("description", "RaiseUp Donation")
+        customer_email = data.get("email")
+
+        if not customer_email:
+            raise ValueError("Email is required.")
+
+        intent = stripe.PaymentIntent.create(
+            amount=amount_in_cents,
+            currency=currency,
+            description=description,
+            receipt_email=customer_email,
+        )
+
+        return jsonify({"client_secret": intent["client_secret"]}), 200
+
+    except Exception as e:
+        logging.error(f"Error processing payment: {e}")
+        return jsonify({"message": str(e)}), 500
+
+
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  
+        db.create_all()
     app.run(debug=True)
