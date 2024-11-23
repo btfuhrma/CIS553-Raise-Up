@@ -47,6 +47,17 @@ class Campaign(db.Model):
 
     user = db.relationship("User", backref="campaigns")
 
+    def serialize(self):
+        return {
+            "campaign_id": self.campaign_id,
+            "user_id": self.user_id,
+            "title": self.title,
+            "description": self.description,
+            "goal_amount": self.goal_amount,
+            "current_amount": self.current_amount,
+            "created_at": self.created_at.isoformat(),
+        }
+
 
 class Comment(db.Model):
     __tablename__ = "comment"
@@ -159,6 +170,11 @@ def list_users():
         ]
     )
 
+@app.route("/api/campaigns/search", methods=["GET"])
+def search_campaigns():
+    query = request.args.get("query")
+    campaigns = Campaign.query.filter(Campaign.title.ilike(f"%{query}%")).all()
+    return jsonify([campaign.serialize() for campaign in campaigns])
 
 if __name__ == "__main__":
     with app.app_context():
