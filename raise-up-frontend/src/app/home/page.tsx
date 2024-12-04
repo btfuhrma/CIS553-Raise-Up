@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 type Campaign = {
-    id: number;
+    campaign_id: number;
     title: string;
     image: string;
     description: string;
@@ -90,7 +90,7 @@ export default function Home() {
                 ) : (
                     <div className="grid grid-cols-1 grid-cols-2 grid-cols-3 gap-6 my-6">
                         {campaigns.map((campaign: any) => (
-                            <Link href={`/campaign/${campaign.id}`} key={campaign.id}>
+                            <Link href={`/campaign/${campaign.campaign_id}`} key={campaign.id}>
                                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-500 transition-colors h-full flex flex-col">
                                     <h3 className="text-xl font-semibold mb-2 text-white">{campaign.title}</h3>
                                     <img src={`http://localhost:5000/static/images/temp.png`} alt="Campaign Image" className="max-h-32 max-w-32" />

@@ -1,7 +1,7 @@
 import flask
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -158,7 +158,6 @@ def login():
         if user and user.check_password(data["password"]):
             session["user_id"] = user.user_id
             session["is_staff"] = user.is_staff
-            print("Logging in session", session)
             return jsonify(
                 {
                     "message": "Login successful",
@@ -237,10 +236,27 @@ def create_payment():
 
 @app.route("/api/user/isStaff", methods=["GET"])
 def is_staff():
-    print("Checking staff session", session)
     if "user_id" in session:
         return jsonify({"is_staff": session["is_staff"]})
     return jsonify({"is_staff": False})
+
+@app.route("/api/campaign/get", methods=["GET"])
+def get_campaign():
+    # Query the campaign by ID
+    id = request.args.get("campaign_id")
+    print(id)
+    campaign = Campaign.query.get(id)
+    if not campaign:
+        return jsonify({"error": "Campaign not found"}), 404
+    campaign_data = {
+        "id": campaign.campaign_id,
+        "title": campaign.title,
+        "description": campaign.description,
+        "goal_amount": campaign.goal_amount,
+        "current_amount": campaign.current_amount,
+        "created_at": campaign.created_at.isoformat() if campaign.created_at else None,
+    }
+    return jsonify(campaign_data), 200
 
 if __name__ == "__main__":
     with app.app_context():
