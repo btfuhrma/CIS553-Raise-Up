@@ -1,5 +1,5 @@
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -22,7 +22,7 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # )
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 if not os.path.exists("instance"):
     os.makedirs("instance")
@@ -30,6 +30,9 @@ if not os.path.exists("instance"):
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///RaiseUp.db"
 app.config["SECRET_KEY"] = "your-secret-key-here"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SESSION_COOKIE_NAME"] = "your_session_cookie"
+app.config["SESSION_PERMANENT"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
 db = SQLAlchemy(app)
 
 
@@ -40,6 +43,7 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     date_created = db.Column(db.DateTime, default=datetime.now)
     password_hash = db.Column(db.String(128))
+    is_staff = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -152,6 +156,9 @@ def login():
         user = User.query.filter_by(email=data["email"]).first()
 
         if user and user.check_password(data["password"]):
+            session["user_id"] = user.user_id
+            session["is_staff"] = user.is_staff
+            print("Logging in session", session)
             return jsonify(
                 {
                     "message": "Login successful",
@@ -228,6 +235,12 @@ def create_payment():
         logging.error(f"Error processing payment: {e}")
         return jsonify({"message": str(e)}), 500
 
+@app.route("/api/user/isStaff", methods=["GET"])
+def is_staff():
+    print("Checking staff session", session)
+    if "user_id" in session:
+        return jsonify({"is_staff": session["is_staff"]})
+    return jsonify({"is_staff": False})
 
 if __name__ == "__main__":
     with app.app_context():

@@ -18,9 +18,18 @@ export default function Home() {
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [loading, setLoading] = useState(false);
     const [query, setQuery] = useState('');
+    const [isStaff, setIsStaff] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
+        fetch('http://localhost:5000/api/user/isStaff', {method:"GET", credentials:'include'})
+        .then((response) => response.json())
+        .then((data) => {
+            setIsStaff(data.is_staff);
+        })
+        .catch((error) => {
+            console.error("Error fetching user data:", error);
+        });
         const delayDebounceFn = setTimeout(() => {
             if (query.length > 2) {
                 setLoading(true);
@@ -49,7 +58,10 @@ export default function Home() {
                     <img src="/favicon.ico" alt="Raise Up Logo" className="h-[90%]" />
                     <span className="text-4xl font-bold text-white absolute left-1/2 -translate-x-1/2">Raise Up</span>
                     <div className="h-full px-4 flex justify-center items-center space-x-5">
-                        <Link href={"/login"} className="px-4 py-2 bg-indigo-400 text-white rounded-lg float-left max-h-[30%]">Login</Link>
+                    {isStaff && (
+                            <Link href="/admin" className="px-4 py-2 bg-indigo-400 text-white rounded-lg float-left max-h-[30%]">Admin</Link>
+                    )}
+                            <Link href={"/login"} className="px-4 py-2 bg-indigo-400 text-white rounded-lg float-left max-h-[30%]">Login</Link>
                     </div>
                 </div>
             </nav>
