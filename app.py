@@ -244,7 +244,6 @@ def is_staff():
 def get_campaign():
     # Query the campaign by ID
     id = request.args.get("campaign_id")
-    print(id)
     campaign = Campaign.query.get(id)
     if not campaign:
         return jsonify({"error": "Campaign not found"}), 404
@@ -257,6 +256,21 @@ def get_campaign():
         "created_at": campaign.created_at.isoformat() if campaign.created_at else None,
     }
     return jsonify(campaign_data), 200
+
+@app.route("/api/campaign/update", methods=["POST"])
+def updateCampaign():
+    data = request.get_json()
+    id = data.get("campaign_id")
+    title = data.get("title")
+    desc = data.get("description")
+    goal_amount = data.get("goal_amount")
+    image = data.get("image")
+    campaign = Campaign.query.filter_by(campaign_id=id).one_or_none()
+    campaign.title = title
+    campaign.description = desc
+    campaign.goal_amount = goal_amount
+    db.session.commit()
+    return jsonify(True), 200
 
 if __name__ == "__main__":
     with app.app_context():
