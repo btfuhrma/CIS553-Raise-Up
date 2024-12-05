@@ -272,6 +272,15 @@ def updateCampaign():
     db.session.commit()
     return jsonify(True), 200
 
+@app.route("/api/campaign/remove", methods=["DELETE"])
+def removeCampaign():
+    data = request.get_json()
+    id = data.get("campaign_id")
+    campaign = Campaign.query.filter_by(campaign_id=id).one_or_none()
+    db.session.delete(campaign)
+    db.session.commit()
+    return jsonify(True), 200
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

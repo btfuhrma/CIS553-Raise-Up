@@ -85,6 +85,30 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
             setLoading(false);
         }
     };
+    const handleRemove = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/campaign/remove`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    campaign_id: campaign_id,
+                 }),
+                 credentials: 'include',
+            });
+
+            if (!res.ok) throw new Error('Failed to remove campaign');
+            alert('Campaign updated successfully');
+            router.push('/admin');
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred while updating the campaign');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen w-full h-full bg-gray-100 flex flex-col items-center">
@@ -175,14 +199,27 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
                                     />
                                 </div>
 
-                                <div>
-                                    <button
-                                        type="submit"
-                                        className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Updating...' : 'Update Campaign'}
-                                    </button>
+                                <div className="flex">
+                                    <div className="w-full mx-2">
+                                        <button
+                                            type="submit"
+                                            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Updating...' : 'Update Campaign'}
+                                        </button>
+                                    </div>
+                                    <div className="w-full mx-2">
+                                        <form onSubmit={handleRemove}>
+                                            <button
+                                                type="submit"
+                                                className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
+                                                disabled={loading}
+                                            >
+                                                {loading ? 'Updating...' : 'Remove Campaign'}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </form>
                         </div>
