@@ -196,7 +196,7 @@ def list_users():
 def search_campaigns():
     query = request.args.get("query")
     campaigns = Campaign.query.filter(Campaign.title.ilike(f"%{query}%")).all()
-    return jsonify([campaign.serialize() for campaign in campaigns])
+    return jsonify([campaign.serialize() for campaign in campaigns]), 200
 
 import logging
 
@@ -237,8 +237,8 @@ def create_payment():
 @app.route("/api/user/isStaff", methods=["GET"])
 def is_staff():
     if "user_id" in session:
-        return jsonify({"is_staff": session["is_staff"]})
-    return jsonify({"is_staff": False})
+        return jsonify({"is_staff": session["is_staff"]}), 200
+    return jsonify({"is_staff": False}), 500
 
 @app.route("/api/campaign/get", methods=["GET"])
 def get_campaign():
