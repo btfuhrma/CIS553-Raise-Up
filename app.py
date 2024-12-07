@@ -304,6 +304,39 @@ def getComments():
     except Exception as e:
         logging.error(f"Error fetching comments: {e}")
         return jsonify({"error": "An error occurred while fetching comments"}), 500
+    
+@app.route("/api/comment/get", methods=["GET"])
+def getComment():
+    # Query the campaign by ID
+    id = request.args.get("comment_id")
+    comment = Comment.query.get(id)
+    if not comment:
+        return jsonify({"error": "Comment not found"}), 404
+    comment_data = {
+        "comment_id": comment.comment_id,
+        "content": comment.content if comment.user else "Unknown User",
+        "username": comment.user.name,
+    }
+    return jsonify(comment_data), 200
+
+@app.route("/api/comment/update", methods=["POST"])
+def updateComment():
+    data = request.get_json()
+    id = data.get("comment_id")
+    content = data.get("content")
+    comment = Comment.query.filter_by(campaign_id=id).one_or_none()
+    comment.title = comment
+    db.session.commit()
+    return jsonify(True), 200
+
+@app.route("/api/comment/remove", methods=["DELETE"])
+def removeComment():
+    data = request.get_json()
+    id = data.get("comment_id")
+    campaign = Comment.query.filter_by(campaign_id=id).one_or_none()
+    db.session.delete(campaign)
+    db.session.commit()
+    return jsonify(True), 200
 
 
 if __name__ == "__main__":
