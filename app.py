@@ -281,6 +281,31 @@ def removeCampaign():
     db.session.commit()
     return jsonify(True), 200
 
+@app.route("/api/comment/list", methods=["GET"])
+def getComments():
+    try:
+        campaign_id = request.args.get("campaign_id")
+        if not campaign_id:
+            return jsonify({"error": "Campaign ID is required"}), 400
+
+        comments = Comment.query.filter_by(campaign_id=campaign_id).all()
+
+        comments_data = [
+            {
+                "content": comment.content,
+                "username": comment.user.name if comment.user else "Unknown User",
+                "comment_id": comment.comment_id
+            }
+            for comment in comments
+        ]
+
+        return jsonify(comments_data), 200
+
+    except Exception as e:
+        logging.error(f"Error fetching comments: {e}")
+        return jsonify({"error": "An error occurred while fetching comments"}), 500
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

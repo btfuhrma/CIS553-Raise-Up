@@ -140,6 +140,7 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
                     <div className="w-full flex justify-center text-center">
                         <div className="w-[50%] bg-white p-6 rounded-lg shadow-md">
                             <h2 className="text-2xl font-bold mb-4 text-black">Edit Campaign</h2>
+                            <Link href={`/admin/comment`} key={campaign.campaign_id} className="px-4 py-2 bg-indigo-400 text-white rounded-lg">Edit Comments</Link>
                             <form onSubmit={handleSubmit} className="space-y-4 text-black">
                                 <div>
                                     <label htmlFor="title" className="block text-left font-medium text-gray-700">
