@@ -56,7 +56,7 @@ export default function Home() {
             <nav className="w-full max-h-32 h-32 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-4">
                 <div className="flex items-center justify-between relative h-full w-full px-4">
                     <img src="/favicon.ico" alt="Raise Up Logo" className="h-[90%]" />
-                    <span className="text-4xl font-bold text-white absolute left-1/2 -translate-x-1/2">Raise Up</span>
+                    <span className="text-4xl font-bold text-white absolute left-1/2 -translate-x-1/2">Raise Up Admin Page</span>
                     <div className="h-full px-4 flex justify-center items-center space-x-5">
                     {isStaff && (
                             <Link href="/admin" className="px-4 py-2 bg-indigo-400 text-white rounded-lg float-left max-h-[30%]">Admin</Link>
@@ -81,7 +81,7 @@ export default function Home() {
 
             <div className="relative inset-x-0 top-0 w-full items-center justify-between text-sm px-24 pt-12">
                 <div className="items-center w-full justify-center">
-                    <h1 className="text-black text-2xl font-bold items-center text-center">Campaigns</h1>
+                    <h1 className="text-black text-2xl font-bold items-center text-center">Modifiable Campaigns</h1>
                 </div>
                 {loading ? (
                     <div className="text-center py-8">
@@ -90,7 +90,7 @@ export default function Home() {
                 ) : (
                     <div className="grid grid-cols-1 grid-cols-2 grid-cols-3 gap-6 my-6">
                         {campaigns.map((campaign: any) => (
-                            <Link href={`/campaign/${campaign.campaign_id}`} key={campaign.id}>
+                            <Link href={`/admin/edit/${campaign.campaign_id}`} key={campaign.campaign_id}>
                                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-500 transition-colors h-full flex flex-col">
                                     <h3 className="text-xl font-semibold mb-2 text-white">{campaign.title}</h3>
                                     <img src={`http://localhost:5000/static/images/temp.png`} alt="Campaign Image" className="max-h-32 max-w-32" />

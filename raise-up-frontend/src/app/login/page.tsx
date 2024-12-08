@@ -26,13 +26,14 @@ export default function Login() {
           email,
           password,
         }),
+        credentials:'include',
       })
 
       if (!res.ok) {
         throw new Error('Invalid credentials')
       }
 
-      router.push('/')
+      router.push('/home')
     } catch (err) {
       setError('Invalid email or password')
     } finally {

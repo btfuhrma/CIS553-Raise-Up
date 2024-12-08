@@ -1,7 +1,7 @@
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -22,7 +22,7 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # )
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 if not os.path.exists("instance"):
     os.makedirs("instance")
@@ -30,6 +30,9 @@ if not os.path.exists("instance"):
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///RaiseUp.db"
 app.config["SECRET_KEY"] = "your-secret-key-here"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SESSION_COOKIE_NAME"] = "your_session_cookie"
+app.config["SESSION_PERMANENT"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
 db = SQLAlchemy(app)
 
 
@@ -40,6 +43,7 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     date_created = db.Column(db.DateTime, default=datetime.now)
     password_hash = db.Column(db.String(128))
+    is_staff = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -152,6 +156,8 @@ def login():
         user = User.query.filter_by(email=data["email"]).first()
 
         if user and user.check_password(data["password"]):
+            session["user_id"] = user.user_id
+            session["is_staff"] = user.is_staff
             return jsonify(
                 {
                     "message": "Login successful",
@@ -190,7 +196,7 @@ def list_users():
 def search_campaigns():
     query = request.args.get("query")
     campaigns = Campaign.query.filter(Campaign.title.ilike(f"%{query}%")).all()
-    return jsonify([campaign.serialize() for campaign in campaigns])
+    return jsonify([campaign.serialize() for campaign in campaigns]), 200
 
 import logging
 
@@ -227,6 +233,110 @@ def create_payment():
     except Exception as e:
         logging.error(f"Error processing payment: {e}")
         return jsonify({"message": str(e)}), 500
+
+@app.route("/api/user/isStaff", methods=["GET"])
+def is_staff():
+    if "user_id" in session:
+        return jsonify({"is_staff": session["is_staff"]}), 200
+    return jsonify({"is_staff": False}), 500
+
+@app.route("/api/campaign/get", methods=["GET"])
+def get_campaign():
+    # Query the campaign by ID
+    id = request.args.get("campaign_id")
+    campaign = Campaign.query.get(id)
+    if not campaign:
+        return jsonify({"error": "Campaign not found"}), 404
+    campaign_data = {
+        "id": campaign.campaign_id,
+        "title": campaign.title,
+        "description": campaign.description,
+        "goal_amount": campaign.goal_amount,
+        "current_amount": campaign.current_amount,
+        "created_at": campaign.created_at.isoformat() if campaign.created_at else None,
+    }
+    return jsonify(campaign_data), 200
+
+@app.route("/api/campaign/update", methods=["POST"])
+def updateCampaign():
+    data = request.get_json()
+    id = data.get("campaign_id")
+    title = data.get("title")
+    desc = data.get("description")
+    goal_amount = data.get("goal_amount")
+    image = data.get("image")
+    campaign = Campaign.query.filter_by(campaign_id=id).one_or_none()
+    campaign.title = title
+    campaign.description = desc
+    campaign.goal_amount = goal_amount
+    db.session.commit()
+    return jsonify(True), 200
+
+@app.route("/api/campaign/remove", methods=["DELETE"])
+def removeCampaign():
+    data = request.get_json()
+    id = data.get("campaign_id")
+    campaign = Campaign.query.filter_by(campaign_id=id).one_or_none()
+    db.session.delete(campaign)
+    db.session.commit()
+    return jsonify(True), 200
+
+@app.route("/api/comment/list", methods=["GET"])
+def getComments():
+    try:
+        campaign_id = request.args.get("campaign_id")
+        if not campaign_id:
+            return jsonify({"error": "Campaign ID is required"}), 400
+
+        comments = Comment.query.filter_by(campaign_id=campaign_id).all()
+
+        comments_data = [
+            {
+                "content": comment.content,
+                "username": comment.user.name if comment.user else "Unknown User",
+                "comment_id": comment.comment_id
+            }
+            for comment in comments
+        ]
+
+        return jsonify(comments_data), 200
+
+    except Exception as e:
+        logging.error(f"Error fetching comments: {e}")
+        return jsonify({"error": "An error occurred while fetching comments"}), 500
+    
+@app.route("/api/comment/get", methods=["GET"])
+def getComment():
+    # Query the campaign by ID
+    id = request.args.get("comment_id")
+    comment = Comment.query.get(id)
+    if not comment:
+        return jsonify({"error": "Comment not found"}), 404
+    comment_data = {
+        "comment_id": comment.comment_id,
+        "content": comment.content if comment.user else "Unknown User",
+        "username": comment.user.name,
+    }
+    return jsonify(comment_data), 200
+
+@app.route("/api/comment/update", methods=["POST"])
+def updateComment():
+    data = request.get_json()
+    id = data.get("comment_id")
+    content = data.get("content")
+    comment = Comment.query.filter_by(campaign_id=id).one_or_none()
+    comment.title = content
+    db.session.commit()
+    return jsonify(True), 200
+
+@app.route("/api/comment/remove", methods=["DELETE"])
+def removeComment():
+    data = request.get_json()
+    id = data.get("comment_id")
+    comment = Comment.query.filter_by(campaign_id=id).one_or_none()
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify(True), 200
 
 
 if __name__ == "__main__":
