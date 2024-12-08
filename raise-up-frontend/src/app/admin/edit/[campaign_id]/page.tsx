@@ -50,12 +50,12 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
             });
     }, [campaign_id]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement| HTMLTextAreaElement> ) => {
-        setFormData(prev => ({
-          ...prev,
-          [e.target.name]: e.target.value
-        }))
-      }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,14 +65,14 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
             const res = await fetch(`http://localhost:5000/api/campaign/update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     campaign_id: campaign_id,
                     title: formData.title,
                     description: formData.description,
                     goal_amount: formData.goal_amount,
                     image: formData.image,
-                 }),
-                 credentials: 'include',
+                }),
+                credentials: 'include',
             });
 
             if (!res.ok) throw new Error('Failed to update campaign');
@@ -85,6 +85,7 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
             setLoading(false);
         }
     };
+
     const handleRemove = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -93,21 +94,25 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
             const res = await fetch(`http://localhost:5000/api/campaign/remove`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     campaign_id: campaign_id,
-                 }),
-                 credentials: 'include',
+                }),
+                credentials: 'include',
             });
 
             if (!res.ok) throw new Error('Failed to remove campaign');
-            alert('Campaign updated successfully');
+            alert('Campaign removed successfully');
             router.push('/admin');
         } catch (error) {
             console.error(error);
-            alert('An error occurred while updating the campaign');
+            alert('An error occurred while removing the campaign');
         } finally {
             setLoading(false);
         }
+    };
+
+    const navigateToComments = () => {
+        router.push(`/admin/comment?campaign_id=${campaign_id}`);
     };
 
     return (
@@ -140,7 +145,12 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
                     <div className="w-full flex justify-center text-center">
                         <div className="w-[50%] bg-white p-6 rounded-lg shadow-md">
                             <h2 className="text-2xl font-bold mb-4 text-black">Edit Campaign</h2>
-                            <Link href={`/admin/comment`} key={campaign.campaign_id} className="px-4 py-2 bg-indigo-400 text-white rounded-lg">Edit Comments</Link>
+                            <button
+                                onClick={navigateToComments}
+                                className="px-4 py-2 bg-indigo-400 text-white rounded-lg mb-4"
+                            >
+                                Edit Comments
+                            </button>
                             <form onSubmit={handleSubmit} className="space-y-4 text-black">
                                 <div>
                                     <label htmlFor="title" className="block text-left font-medium text-gray-700">
@@ -211,15 +221,13 @@ export default function EditCampaign({ params }: { params: { campaign_id: string
                                         </button>
                                     </div>
                                     <div className="w-full mx-2">
-                                        <form onSubmit={handleRemove}>
-                                            <button
-                                                type="submit"
-                                                className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
-                                                disabled={loading}
-                                            >
-                                                {loading ? 'Updating...' : 'Remove Campaign'}
-                                            </button>
-                                        </form>
+                                        <button
+                                            onClick={handleRemove}
+                                            className="w-full py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Removing...' : 'Remove Campaign'}
+                                        </button>
                                     </div>
                                 </div>
                             </form>

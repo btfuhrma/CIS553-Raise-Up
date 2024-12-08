@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 type Comment = {
@@ -10,13 +10,20 @@ type Comment = {
     comment_id: number;
 };
 
-export default function EditComment({ params }: { params: { campaign_id: string } }) {
+export default function EditCommentList() {
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState<Comment[]>([]);
-    const { campaign_id } = params;
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const campaign_id = searchParams.get('campaign_id');
 
     useEffect(() => {
+        if (!campaign_id) {
+            console.error("Campaign ID is undefined");
+            setLoading(false);
+            return;
+        }
+
         fetch(`http://localhost:5000/api/comment/list?campaign_id=${campaign_id}`)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to fetch comments');
@@ -30,8 +37,7 @@ export default function EditComment({ params }: { params: { campaign_id: string 
                 console.error(error);
                 setLoading(false);
             });
-    });
-
+    }, [campaign_id]); // Add dependency for campaign_id
 
     return (
         <div className="min-h-screen w-full h-full bg-gray-100 flex flex-col items-center">
@@ -60,12 +66,12 @@ export default function EditComment({ params }: { params: { campaign_id: string 
                         <p className="text-slate-400 text-lg">Loading...</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 grid-cols-2 grid-cols-3 gap-6 my-6">
-                        {comments.map((comment: any) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
+                        {comments.map((comment) => (
                             <Link href={`/admin/comment/edit/${comment.comment_id}`} key={comment.comment_id}>
                                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-500 transition-colors h-full flex flex-col">
-                                    <h3 className="text-xl font-semibold mb-2 text-white">{comment.username}</h3>
-                                    <p className="text-slate-400 mb-4 flex-grow">{comment.content}</p>
+                                    <h3 className="text-xl font-semibold mb-2 text-white">User: {comment.username}</h3>
+                                    <p className="text-slate-400 mb-4 flex-grow">Comment: {comment.content}</p>
                                 </div>
                             </Link>
                         ))}

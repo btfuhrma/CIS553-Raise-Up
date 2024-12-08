@@ -27,13 +27,16 @@ export default function EditComment({ params }: { params: { comment_id: string }
             })
             .then((data) => {
                 setComment(data);
+                setFormData({
+                    content: data.content || '', 
+                });
                 setLoading(false);
             })
             .catch((error) => {
                 console.error(error);
                 setLoading(false);
             });
-    });
+    }, [comment_id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement| HTMLTextAreaElement> ) => {
         setFormData(prev => ({
@@ -119,8 +122,7 @@ export default function EditComment({ params }: { params: { comment_id: string }
                 ) : (
                     <div className="w-full flex justify-center text-center">
                         <div className="w-[50%] bg-white p-6 rounded-lg shadow-md">
-                            <h2 className="text-2xl font-bold mb-4 text-black">Edit comment</h2>
-                            <Link href={`/admin/comment`} key={comment.comment_id} className="px-4 py-2 bg-indigo-400 text-white rounded-lg">Edit Comment</Link>
+                            <h2 className="text-2xl font-bold mb-4 text-black">Edit Comment by {comment.username}</h2>
                             <form onSubmit={handleSubmit} className="space-y-4 text-black">
                                 <div>
                                     <label htmlFor="content" className="block text-left font-medium text-gray-700">
@@ -131,7 +133,7 @@ export default function EditComment({ params }: { params: { comment_id: string }
                                         name="content"
                                         value={formData.content}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
                                         required
                                     />
                                 </div>
@@ -144,7 +146,7 @@ export default function EditComment({ params }: { params: { comment_id: string }
                                             className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
                                             disabled={loading}
                                         >
-                                            {loading ? 'Updating...' : 'Update Campaign'}
+                                            {loading ? 'Updating...' : 'Update Comment'}
                                         </button>
                                     </div>
                                     <div className="w-full mx-2">
@@ -154,7 +156,7 @@ export default function EditComment({ params }: { params: { comment_id: string }
                                                 className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
                                                 disabled={loading}
                                             >
-                                                {loading ? 'Updating...' : 'Remove Campaign'}
+                                                {loading ? 'Updating...' : 'Remove Comemnt'}
                                             </button>
                                         </form>
                                     </div>
