@@ -325,7 +325,7 @@ def updateComment():
     id = data.get("comment_id")
     content = data.get("content")
     comment = Comment.query.filter_by(campaign_id=id).one_or_none()
-    comment.title = comment
+    comment.title = content
     db.session.commit()
     return jsonify(True), 200
 
@@ -333,8 +333,8 @@ def updateComment():
 def removeComment():
     data = request.get_json()
     id = data.get("comment_id")
-    campaign = Comment.query.filter_by(campaign_id=id).one_or_none()
-    db.session.delete(campaign)
+    comment = Comment.query.filter_by(campaign_id=id).one_or_none()
+    db.session.delete(comment)
     db.session.commit()
     return jsonify(True), 200
 
