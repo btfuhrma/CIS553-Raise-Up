@@ -105,3 +105,18 @@ def test_payment_endpoint(test_client, monkeypatch):
     assert response.status_code == 500
     data = response.get_json()
     assert "Invalid amount" in data["message"]
+
+
+def test_stress_user_registration(test_client):
+    # Stress test: register multiple users in quick succession.
+    # This isn't a "true" performance test, but it checks whether the code can handle multiple consecutive requests without issues.
+    user_count = 50
+    for i in range(user_count):
+        email = f"user{i}@example.com"
+        response = register_user(test_client, f"User{i}", email, "pass123")
+        assert response.status_code in (201, 400)
+        # Status 201 for newly created users, 400 if email already taken (just in case).
+    response = test_client.get("/debug/users")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data) > 0
