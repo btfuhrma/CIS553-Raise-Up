@@ -257,6 +257,33 @@ def get_campaign():
     }
     return jsonify(campaign_data), 200
 
+
+@app.route("/api/campaigns", methods=["POST"])
+def create_campaign():
+    try:
+        title = request.form.get("title")
+        description = request.form.get("description")
+        goal_amount = request.form.get("goal_amount")
+        image = request.files.get("image")  # Handle image upload if needed
+        
+        if not title or not goal_amount:
+            return jsonify({"message": "Title and goal amount are required"}), 400
+
+        new_campaign = Campaign(
+            title=title,
+            description=description,
+            goal_amount=float(goal_amount),
+            user_id=session.get("user_id")  # Assuming the user is logged in
+        )
+        db.session.add(new_campaign)
+        db.session.commit()
+
+        return jsonify({"message": "Campaign created successfully", "campaign_id": new_campaign.campaign_id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": str(e)}), 500
+
+
 @app.route("/api/campaign/update", methods=["POST"])
 def updateCampaign():
     data = request.get_json()
