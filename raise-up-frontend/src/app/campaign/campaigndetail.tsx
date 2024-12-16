@@ -6,9 +6,10 @@ interface Campaign {
   id: string;
   title: string;
   description: string;
-  image_url: string;
+  image_url: string | null;
   current_amount: number;
   goal_amount: number;
+  created_at: string;
 }
 
 const CampaignDetail: React.FC = () => {
@@ -22,10 +23,20 @@ const CampaignDetail: React.FC = () => {
 
     const fetchCampaign = async () => {
       try {
-        const response = await axios.get(`/api/campaigns/${id}`);
-        setCampaign(response.data);
+        const response = await axios.get(`http://localhost:5000/api/campaign/get?campaign_id=${id}`);
+        const campaignData: Campaign = {
+          id: response.data.id.toString(),
+          title: response.data.title,
+          description: response.data.description,
+          image_url: response.data.image_url,
+          current_amount: response.data.current_amount,
+          goal_amount: response.data.goal_amount,
+          created_at: response.data.created_at
+        };
+        setCampaign(campaignData);
       } catch (error) {
         console.error("Error fetching campaign:", error);
+        alert("Failed to load campaign details");
       }
     };
 
@@ -52,26 +63,26 @@ const CampaignDetail: React.FC = () => {
     );
   }
 
-  const progress = (campaign.current_amount / campaign.goal_amount) * 100;
-
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 bg-gray-100 min-h-screen rounded-md">
-      <div className="mb-8 rounded-md overflow-hidden">
-        <img
-          src={campaign.image_url || "/default-campaign-image.jpg"}
-          alt={campaign.title}
-          className="w-full h-96 object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/default-campaign-image.jpg";
-          }}
-        />
-      </div>
+      {campaign.image_url && (
+        <div className="mb-8 rounded-md overflow-hidden">
+          <img
+            src={`http://localhost:5000${campaign.image_url}`}
+            alt={campaign.title}
+            className="w-full h-96 object-cover"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="col-span-2">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">{campaign.title}</h1>
           <div className="bg-white p-6 rounded-md shadow-md">
-            <p className="text-gray-700">{campaign.description}</p>
+            <p className="text-gray-700 whitespace-pre-wrap">{campaign.description}</p>
+            <p className="text-sm text-gray-500 mt-4">
+              Created on: {new Date(campaign.created_at).toLocaleDateString()}
+            </p>
           </div>
         </div>
 
@@ -81,10 +92,12 @@ const CampaignDetail: React.FC = () => {
               <div className="h-3 bg-gray-200 rounded-md overflow-hidden">
                 <div
                   className="h-full bg-gray-800"
-                  style={{ width: `${progress}%` }}
+                  style={{ width: `${Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)}%` }}
                 ></div>
               </div>
-              <p className="text-sm text-gray-500 mt-2">{`${campaign.current_amount} raised of ${campaign.goal_amount} goal`}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                ${campaign.current_amount.toLocaleString()} raised of ${campaign.goal_amount.toLocaleString()} goal
+              </p>
             </div>
 
             <button className="w-full py-3 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-700 mb-4">
