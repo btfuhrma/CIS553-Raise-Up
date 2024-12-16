@@ -29,25 +29,29 @@ const CampaignForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("description", formData.description);
-    data.append("goal_amount", formData.goal_amount);
-    if (formData.image) {
-      data.append("image", formData.image);
-    }
-
+    
     try {
-      const response = await axios.post("/api/campaigns", data);
-      if (response.data.campaign && response.data.campaign.id) {
-        router.push(`/campaign/${response.data.campaign.id}`);
-      } else {
-        alert("Error creating campaign: No campaign ID received");
-      }
+        const formDataToSend = new FormData();
+        formDataToSend.append('title', formData.title);
+        formDataToSend.append('description', formData.description);
+        formDataToSend.append('goal_amount', formData.goal_amount);
+        if (formData.image) {
+            formDataToSend.append('image', formData.image);
+        }
+
+        const response = await axios.post('http://localhost:5000/api/campaigns', formDataToSend, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+        });
+        
+        if (response.status === 201) {
+            router.push(`/campaign/${response.data.campaign_id}`);
+        }
     } catch (error) {
-      console.error("Error creating campaign:", error);
-      alert("Error creating campaign. Please try again.");
+        console.error('Error creating campaign:', error);
+        alert('Failed to create campaign. Please try again.');
     }
   };
 
@@ -102,7 +106,7 @@ const CampaignForm: React.FC = () => {
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Campaign Image</label>
           <div
-            className={`border-2 rounded-lg p-3 cursor-pointer ${
+            className={`relative border-2 rounded-lg p-3 ${
               imagePreview
                 ? "border-gray-300"
                 : "border-dashed border-gray-300 hover:border-gray-800"
@@ -115,6 +119,16 @@ const CampaignForm: React.FC = () => {
                   alt="Preview"
                   className="w-full h-full object-cover"
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({ ...formData, image: null });
+                    setImagePreview(null);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+                >
+                  Remove
+                </button>
               </div>
             ) : (
               <div className="text-center text-gray-500">
@@ -126,7 +140,8 @@ const CampaignForm: React.FC = () => {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              id="campaign-image"
             />
           </div>
         </div>
