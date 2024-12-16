@@ -1,18 +1,20 @@
 "use client";
-
 import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
-import "./styles/payment.css";
+import "../globals.css";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const CheckoutForm = () => {
     const stripe = useStripe();
     const elements = useElements();
+    
+    // Retrieve the campaign_id from the URL
     const searchParams = new URLSearchParams(window.location.search);
     const campaignId = searchParams.get('campaign_id');
+    
     const [email, setEmail] = useState("");
     const [amount, setAmount] = useState<number | string>("");
     const [isLoading, setIsLoading] = useState(false);
@@ -32,11 +34,12 @@ const CheckoutForm = () => {
         try {
             setIsLoading(true);
 
+            // Send the campaign_id along with other payment details
             const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/payment`, {
                 amount,
                 email,
                 currency: "usd",
-                campaign_id: campaignId
+                campaign_id: campaignId,  // Passing campaign_id to the backend
             });
 
             const { client_secret } = data;
@@ -60,20 +63,19 @@ const CheckoutForm = () => {
         }
     };
 
-
     return (
-        <div className="payment-container">
+        <div className="max-w-lg mx-auto mt-10 p-6 shadow-lg rounded-lg bg-gray-50">
             {campaignId && (
-                <p className="campaign-id">
+                <p className="campaign-id text-center mb-4 text-gray-800">
                     Campaign ID: {campaignId}
                 </p>
             )}
-            <h2 className="payment-title">
+            <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
                 Complete Your Payment
             </h2>
 
-            <form onSubmit={handleSubmit} className="payment-form">
-                <div className="form-group">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email
                     </label>
@@ -88,7 +90,7 @@ const CheckoutForm = () => {
                     />
                 </div>
 
-                <div className="form-group">
+                <div>
                     <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
                         Donation Amount (USD)
                     </label>
@@ -103,7 +105,7 @@ const CheckoutForm = () => {
                     />
                 </div>
 
-                <div className="form-group">
+                <div>
                     <label htmlFor="card-details" className="block text-sm font-medium text-gray-700">
                         Card Details
                     </label>
@@ -131,7 +133,7 @@ const CheckoutForm = () => {
 
                 <button
                     type="submit"
-                    className="submit-button"
+                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
                     disabled={isLoading || !stripe}
                 >
                     {isLoading ? "Processing..." : "Pay Now"}
@@ -139,7 +141,7 @@ const CheckoutForm = () => {
             </form>
 
             {message && (
-                <p className={`message ${message.includes("successful") ? "success" : "error"}`}>
+                <p className={`mt-4 text-center ${message.includes("successful") ? "text-green-600" : "text-red-600"}`}>
                     {message}
                 </p>
             )}
@@ -147,10 +149,10 @@ const CheckoutForm = () => {
     );
 };
 
-export default function PaymentPage() {
-    return (
-        <Elements stripe={stripePromise}>
-            <CheckoutForm />
-        </Elements>
-    );
-}
+const PaymentPage = () => (
+    <Elements stripe={stripePromise}>
+        <CheckoutForm />
+    </Elements>
+);
+
+export default PaymentPage;
