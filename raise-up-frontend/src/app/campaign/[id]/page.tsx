@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import '../styles/campaign-detail.css';
 
@@ -17,6 +17,7 @@ interface Campaign {
 
 const CampaignDetail = () => {
   const params = useParams();
+  const router = useRouter();
   const id = params.id;
   console.log('Campaign detail page loaded with ID:', id);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
@@ -80,6 +81,10 @@ const CampaignDetail = () => {
     }
   };
 
+  const handleDonate = () => {
+    router.push(`/payment?campaign_id=${id}`);
+  };
+
   return (
     <div className="campaign-detail">
       <h1 className="campaign-title">{campaign.title}</h1>
@@ -118,7 +123,10 @@ const CampaignDetail = () => {
               </p>
             </div>
 
-            <button className="donate-button">
+            <button 
+              className="donate-button"
+              onClick={handleDonate}
+            >
               Donate Now
             </button>
 

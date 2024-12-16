@@ -1,0 +1,110 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #1a202c;
+}
+
+.payment-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 40px;
+  background-color: #f3f4f6;
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+}
+
+.payment-title {
+  font-size: 2rem;
+  color: #1f2937;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.form-group input:focus {
+  border-color: #1f2937;
+  outline: none;
+}
+
+.card-element {
+  padding: 12px;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  background: white;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 16px;
+  background-color: #1f2937;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.submit-button:hover {
+  background-color: #374151;
+}
+
+.submit-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.message {
+  text-align: center;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.message.success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.campaign-id {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 20px;
+  padding: 8px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+} 
