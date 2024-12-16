@@ -58,14 +58,14 @@ class User(db.Model):
 class Campaign(db.Model):
     __tablename__ = "campaign"
     campaign_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id", name="fk_campaign_user"), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     goal_amount = db.Column(db.Float, nullable=False)
     current_amount = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    user = db.relationship("User", backref="campaigns")
+    user = db.relationship("User", backref="campaigns", foreign_keys=[user_id])
 
     def serialize(self):
         return {
@@ -76,6 +76,7 @@ class Campaign(db.Model):
             "goal_amount": self.goal_amount,
             "current_amount": self.current_amount,
             "created_at": self.created_at.isoformat(),
+            "is_anonymous": self.user_id == 0
         }
 
 
@@ -264,22 +265,39 @@ def create_campaign():
         title = request.form.get("title")
         description = request.form.get("description")
         goal_amount = request.form.get("goal_amount")
-        image = request.files.get("image")  # Handle image upload if needed
+        image = request.files.get("image")
         
         if not title or not goal_amount:
             return jsonify({"message": "Title and goal amount are required"}), 400
 
+        # Get user_id from session if logged in, otherwise use anonymous user (0)
+        user_id = session.get("user_id", 0)
+        
         new_campaign = Campaign(
             title=title,
             description=description,
             goal_amount=float(goal_amount),
-            user_id=session.get("user_id")  # Assuming the user is logged in
+            user_id=user_id
         )
+
+        # Handle image upload if provided
+        if image:
+            # Add your image handling logic here
+            pass
+
         db.session.add(new_campaign)
         db.session.commit()
 
-        return jsonify({"message": "Campaign created successfully", "campaign_id": new_campaign.campaign_id}), 201
+        print(f"Created campaign with ID: {new_campaign.campaign_id} by user {user_id}")
+
+        return jsonify({
+            "message": "Campaign created successfully",
+            "campaign_id": new_campaign.campaign_id,
+            "is_anonymous": user_id == 0
+        }), 201
+
     except Exception as e:
+        print(f"Error creating campaign: {str(e)}")
         db.session.rollback()
         return jsonify({"message": str(e)}), 500
 
